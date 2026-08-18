@@ -1,0 +1,60 @@
+// callback function that will be executed when data is received
+void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int len) {
+  memcpy(&responseBikeData, incomingData, sizeof(responseBikeData));
+
+  String prefix = responseBikeData.prefix;
+  String uidCard = responseBikeData.uidCard;
+  int resCode = responseBikeData.resCode;
+  bool state = responseBikeData.state;
+
+  if (state) {
+    openGate();
+    delay(400);
+    stopGate();
+    cardId = "";
+  } else {
+    Serial.println("DITOLAK MASUK, state: " + String(state));
+    Serial.println("resCode= " + String(resCode));
+
+    if (uidCard.length() == 0 || uidCard == "CLOSE") {
+      Serial.println("Remote gate down");
+      closeGate();
+    }
+
+    switch (resCode) {
+      case 101:
+        break;
+      case 102:
+        // SALDO TIDAK CUKUP
+        myDFPlayer.play(7);
+        break;
+      case 103:
+        break;
+      case 104:
+        // KARTU BELUM PERNAH MASUK
+        myDFPlayer.play(5);
+        break;
+      case 105:
+        break;
+      case 106:
+        esp_restart();
+        break;
+      case 200:
+        // "x." dispenser code
+        // ".x" error code
+        uint32_t versiondata = nfc.getFirmwareVersion();
+        if (!versiondata) {
+          float code = 1.001;
+          sendingRemotData(code);
+        } else {
+          float code = 1.002;
+          sendingRemotData(code);
+        }
+        break;
+    }
+    delay(1000);
+    cardId = "";
+    isEnableEntry = true;
+  }
+
+}

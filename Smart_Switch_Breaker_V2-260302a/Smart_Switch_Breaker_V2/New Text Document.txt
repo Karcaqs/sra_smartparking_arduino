@@ -1,0 +1,20 @@
+void handleON() {
+  digitalWrite(RELAY_PIN, LOW);
+  relayState = true;
+  // mqttClient.publish(mqtt_topic_status, 0, false, "ON");
+  // myBot.sendTo(CHAT_ID, escapeMarkdown("Relay ON ✅"));
+}
+
+void handleOFF() {
+  digitalWrite(RELAY_PIN, HIGH);
+  relayState = false;
+  relayOffTimestamp = millis();
+  isTimerRunning = true;
+  // mqttClient.publish(mqtt_topic_status, 0, false, "OFF:AutoOn15s");
+  // myBot.sendTo(CHAT_ID, escapeMarkdown("📴 OFF:AutoOn15s"));
+}
+
+void handlePing() {
+  // mqttClient.publish(mqtt_topic_status, 0, false, "Device is Online");
+  // myBot.sendTo(CHAT_ID, escapeMarkdown("🟢 *Device is Online*\n📱 Status OK"));
+}
