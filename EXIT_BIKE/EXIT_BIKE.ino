@@ -9,8 +9,8 @@
 #include <DallasTemperature.h>
 
 // set mac
-#include "esp_wifi.h"  
-uint8_t newMACAddress[6] = {0xD8, 0xBC, 0x38, 0xFA, 0x82, 0xA8};  // Must be unicast + locally administered
+#include "esp_wifi.h"
+uint8_t newMACAddress[6] = {0xD8, 0xBC, 0x38, 0xFA, 0x82, 0xA8};  //D8:BC:38:FA:82:A8
 
 esp_now_peer_info_t peerInfo;
 
@@ -22,7 +22,11 @@ esp_now_peer_info_t peerInfo;
 
 // Inisialisasi PN532 dengan I2C
 // Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
-Adafruit_PN532 nfc(PN532_SDA, PN532_SLC);
+//Adafruit_PN532 nfc(PN532_SDA, PN532_SLC);
+
+#define PN532_IRQ (2)
+#define PN532_RESET (3)
+Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
 SoftwareSerial softSerial(/*rx =*/19, /*tx =*/18);
 #define FPSerial softSerial
@@ -92,7 +96,7 @@ void setup() {
   initPin();
   initDfPlayer();
   sensors.begin();
-  
+
   initPN532();
 
   WiFi.mode(WIFI_STA);  // penting! aktifkan WiFi station
@@ -102,10 +106,10 @@ void setup() {
 
   // set mac
   if (esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]) == ESP_OK) {
-    Serial.println("MAC address changed successfully!");
+    //    Serial.println("MAC address changed successfully!");
     Serial.println(WiFi.macAddress());
   } else {
-    Serial.println("Failed to change MAC address");
+    Serial.println(F("Failed to change MAC address"));
   }
 
   WiFi.disconnect();
@@ -115,14 +119,15 @@ void setup() {
     return;
   }
 
-  esp_now_register_send_cb(OnDataSent);
+  //  esp_now_register_send_cb(OnDataSent);
+  esp_now_register_send_cb((esp_now_send_cb_t)OnDataSent);
   memcpy(peerInfo.peer_addr, masterAddr, 6);
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
 
   // Add peer
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Failed to add peer");
+    Serial.println(F("Failed to add peer"));
     return;
   }
   esp_now_register_recv_cb(OnDataRecv);

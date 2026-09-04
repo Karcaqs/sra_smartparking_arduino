@@ -9,20 +9,24 @@
 #include <DallasTemperature.h>
 
 // set mac
-#include "esp_wifi.h"  
+#include "esp_wifi.h"
 uint8_t newMACAddress[6] = {0x20, 0x43, 0xA8, 0x65, 0xB2, 0xEC};  // Must be unicast + locally administered
 
 esp_now_peer_info_t peerInfo;
 
-#define PN532_RESET (22)    // Bisa diganti sesuai kebutuhan
-#define PN532_RX    (16)    // ESP32 menerima data dari PN532 TX
-#define PN532_TX    (17)    // ESP32 kirim data ke PN532 RX
+//#define PN532_RESET (22)    // Bisa diganti sesuai kebutuhan
+//#define PN532_RX    (16)    // ESP32 menerima data dari PN532 TX
+//#define PN532_TX    (17)    // ESP32 kirim data ke PN532 RX
 
 // Gunakan Serial2 (ESP32 punya 3 port UART: Serial, Serial1, Serial2)
-HardwareSerial mySerial(2);
+//HardwareSerial mySerial(2);
 
 // Buat instance PN532 pakai UART
-Adafruit_PN532 nfc(PN532_RESET, &mySerial);
+//Adafruit_PN532 nfc(PN532_RESET, &mySerial);
+
+#define PN532_IRQ (2)
+#define PN532_RESET (3)
+Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 
 SoftwareSerial softSerial(/*rx =*/19, /*tx =*/18);
 #define FPSerial softSerial
@@ -89,7 +93,7 @@ void setup() {
   initPin();
   initDfPlayer();
   sensors.begin();
-  
+
   initPN532();
 
   WiFi.mode(WIFI_STA);  // penting! aktifkan WiFi station
@@ -99,27 +103,28 @@ void setup() {
 
   // set mac
   if (esp_wifi_set_mac(WIFI_IF_STA, &newMACAddress[0]) == ESP_OK) {
-    Serial.println("MAC address changed successfully!");
+    //    Serial.println("MAC address changed successfully!");
     Serial.println(WiFi.macAddress());
   } else {
-    Serial.println("Failed to change MAC address");
+    Serial.println(F("Failed to change MAC address"));
   }
 
   WiFi.disconnect();
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
+    Serial.println(F("Error initializing ESP-NOW"));
     return;
   }
 
-  esp_now_register_send_cb(OnDataSent);
+//  esp_now_register_send_cb(OnDataSent);
+  esp_now_register_send_cb((esp_now_send_cb_t)OnDataSent);
   memcpy(peerInfo.peer_addr, masterAddr, 6);
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
 
   // Add peer
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("Failed to add peer");
+    Serial.println(F("Failed to add peer"));
     return;
   }
   esp_now_register_recv_cb(OnDataRecv);
@@ -179,6 +184,6 @@ void loop() {
       //      Serial.println("isLoopExitOn: " + String(isLoopExitOn) + " Close gate");
     }
   }
- 
+
   delay(100);
 }

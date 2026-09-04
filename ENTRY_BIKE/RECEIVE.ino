@@ -11,11 +11,11 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     openGate();
     cardId = "";
   } else {
-    Serial.println("DITOLAK MASUK, state: " + String(state));
-    Serial.println("resCode= " + String(resCode));
+//    Serial.println("DITOLAK MASUK, state: " + String(state));
+//    Serial.println("resCode= " + String(resCode));
 
     if (uidCard.length() == 0 || uidCard == "CLOSE") {
-      Serial.println("Remote gate down");
+//      Serial.println("Remote gate down");
       closeGate();
     }
 

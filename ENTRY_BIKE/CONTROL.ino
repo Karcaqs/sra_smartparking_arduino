@@ -12,7 +12,7 @@ void controlFan(bool val) {
 void openGate() {
   isEnableEntry = false;
   myDFPlayer.play(4);
-  Serial.println("SILAHKAN MASUK");
+  //  Serial.println("SILAHKAN MASUK");
   controlUp(true);
   delay(300);
   controlUp(false);

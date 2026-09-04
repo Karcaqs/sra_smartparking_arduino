@@ -1,6 +1,6 @@
 void sendingBikeData() {
   if (cardId != "") {
-    Serial.println("MASUK PAK EKO");
+    //    Serial.println("MASUK PAK EKO");
     bikeEntryExitData.prefix = prefixCard;
     strcpy(bikeEntryExitData.uidCard, cardId.c_str());
     bikeEntryExitData.temp = readTemp();
@@ -10,7 +10,7 @@ void sendingBikeData() {
 }
 
 void sendingRemotData(float code) {
-  Serial.println("REMOTE");
+  //  Serial.println("REMOTE");
   remoteBikeData.prefix = prefixRemote;
   remoteBikeData.temp = code;
   Serial.println(  remoteBikeData.prefix);
